@@ -46,7 +46,7 @@ Ctrl + B
 
 7. Install the Plugin
 
-Copy the compiled plugin .dll file (ActionQueuePlugin.dll) into your GWToolbox++ plugins folder: 
+Copy the compiled plugin .dll file (GWToolboxpp\bin\RelWithDebInfo\ActionQueuePlugin.dll) into your GWToolbox++ plugins folder: 
 C:\Users\<YourUsername>\Documents\GWToolboxpp\<YourComputerName>\plugins
 
 8. Run
