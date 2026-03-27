@@ -92,3 +92,9 @@ Each line in a .bot file represents a command. The following commands are suppor
 
     TargetStrongestEnemyWithinDistance dist
     Targets the strongest enemy (highest HP) within the specified distance.
+
+    FlagAll x y
+    Flag NPCs in Party to coordinates (x, y).
+
+    UnflagAll
+    Unflag all NPCs in Party.

@@ -31,7 +31,9 @@ enum class ActionType {
     TargetNextEnemy,
     TargetPreviousEnemy,
     TargetStrongestEnemyWithinDistance,
-    TargetNearestEnemyWithinDistance
+    TargetNearestEnemyWithinDistance,
+    FlagAll,
+    UnflagAll
     // You can add more actions like CastSkill, DropItem, etc.
 };
 
@@ -166,6 +168,8 @@ public:
     void QueueTargetPreviousEnemy();
     void QueueTargetStrongestEnemyWithinDistance(float within_distance);
     void QueueTargetNearestEnemyWithinDistance(float within_distance);
+    void QueueFlagAll(float x, float y);
+    void QueueUnflagAll();
     // Hook callbacks
     void OnGenericValuePacket(GW::HookStatus* status, GW::Packet::StoC::GenericValue* packet);
     void HandleCastFailMessage(GW::HookStatus*, GW::Packet::StoC::MessageCore* packet);

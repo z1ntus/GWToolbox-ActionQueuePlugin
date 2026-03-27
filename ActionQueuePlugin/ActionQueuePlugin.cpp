@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <stdio.h>
+#include <GWCA/Managers/PartyMgr.h>
 
 struct TooltipInfo {
     uint32_t bit_field;              // unknown
@@ -96,6 +97,10 @@ namespace {
                 return "TargetNearestEnemyWithinDistance";
             case ActionType::EnterPortal:
                 return "EnterPortal";
+            case ActionType::FlagAll:
+                return "FlagAll";
+            case ActionType::UnflagAll:
+                return "UnflagAll";
         }
         return "Unknown";
     }
@@ -675,6 +680,33 @@ void ActionQueuePlugin::Update(float /*delta*/)
             return;
         }
 
+        case ActionType::FlagAll: {
+            if (!action.entered) {
+                GW::GameThread::Enqueue([x = action.x, y = action.y] {
+                    GW::GamePos pos;
+                    pos.x = x;
+                    pos.y = y;
+                    GW::PartyMgr::FlagAll(pos);
+                    });
+                action.entered = true;
+            }
+
+            action_queue.pop();
+            return;
+        }
+
+        case ActionType::UnflagAll: {
+            if (!action.entered) {
+                GW::GameThread::Enqueue([] {
+                    GW::PartyMgr::UnflagAll();
+                    });
+                action.entered = true;
+            }
+
+            action_queue.pop(); // instant action
+            return;
+        }
+
         default:
             // unknown action → just pop it so we don’t get stuck
             action_queue.pop();
@@ -760,6 +792,16 @@ void ActionQueuePlugin::QueueTargetStrongestEnemyWithinDistance(float within_dis
 void ActionQueuePlugin::QueueTargetNearestEnemyWithinDistance(float within_distance)
 {
     action_queue.emplace(QueuedAction::MakeTargetNearestEnemyWithinDistance(within_distance));
+}
+
+void ActionQueuePlugin::QueueFlagAll(float x, float y)
+{
+    action_queue.emplace(ActionType::FlagAll, x, y);
+}
+
+void ActionQueuePlugin::QueueUnflagAll()
+{
+    action_queue.emplace(ActionType::UnflagAll);
 }
 
 void ActionQueuePlugin::OnGenericValuePacket(GW::HookStatus*, GW::Packet::StoC::GenericValue* packet)
@@ -897,6 +939,14 @@ void ActionQueuePlugin::LoadScriptFromFile(const std::string& filename)
             float dist;
             iss >> dist;
             QueueTargetStrongestEnemyWithinDistance(dist);
+        }
+        else if (command == "FlagAll") {
+            float x, y;
+            iss >> x >> y;
+            QueueFlagAll(x, y);
+        }
+        else if (command == "UnflagAll") {
+            QueueUnflagAll();
         }
         else {
             //printf("[ActionQueue] Unknown command: %s\n", command.c_str());
